@@ -60,12 +60,12 @@ def generateAttributes() {
 	def springFrameworkVersion = getLibVersion(libs.org.springframework.spring.framework.bom.get().version)
     def ghTag = snapshotBuild ? 'main' : project.version
 	def docsUrl = 'https://docs.spring.io'
-    def springBootRefDocs =  "${docsUrl}/spring-boot/docs/${springBootVersion}/reference/html"
+    def springBootDocs =  "${docsUrl}/spring-boot/${springBootVersion}"
 	def springSecurityRefDocs = "${docsUrl}/spring-security/reference/${springSecurityVersion}"
 	def springFrameworkRefDocs = "${docsUrl}/spring-framework/reference/${springFrameworkVersion}"
     return ['gh-tag':ghTag,
             'spring-boot-version': springBootVersion,
-            'spring-boot-ref-docs': springBootRefDocs.toString(),
+            'spring-boot-docs': springBootDocs.toString(),
             'spring-session-version': project.version,
             'spring-security-ref-docs': springSecurityRefDocs.toString(),
             'spring-framework-ref-docs': springFrameworkRefDocs.toString(),
