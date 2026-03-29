@@ -44,7 +44,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	private long contentLength;
 
 	/**
-	 * The size of data written to the response body.
+	 * The size of data written to the response body. The field will only be updated when
+	 * {@link #disableOnCommitted} is false.
 	 */
 	private long contentWritten;
 
@@ -58,10 +59,38 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 	@Override
 	public void addHeader(String name, String value) {
+		checkContentLengthHeader(name, value);
+		super.addHeader(name, value);
+	}
+
+	@Override
+	public void addIntHeader(String name, int value) {
+		checkContentLengthHeader(name, value);
+		super.addIntHeader(name, value);
+	}
+
+	@Override
+	public void setHeader(String name, String value) {
+		checkContentLengthHeader(name, value);
+		super.setHeader(name, value);
+	}
+
+	@Override
+	public void setIntHeader(String name, int value) {
+		checkContentLengthHeader(name, value);
+		super.setIntHeader(name, value);
+	}
+
+	private void checkContentLengthHeader(String name, int value) {
 		if ("Content-Length".equalsIgnoreCase(name)) {
+			setContentLength(value);
+		}
+	}
+
+	private void checkContentLengthHeader(String name, String value) {
+		if (value != null && "Content-Length".equalsIgnoreCase(name)) {
 			setContentLength(Long.parseLong(value));
 		}
-		super.addHeader(name, value);
 	}
 
 	@Override
@@ -164,43 +193,64 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	private void trackContentLength(boolean content) {
-		checkContentLength(content ? 4 : 5); // TODO Localization
+		if (!this.disableOnCommitted) {
+			checkContentLength(content ? 4 : 5); // TODO Localization
+		}
 	}
 
 	private void trackContentLength(char content) {
-		checkContentLength(1);
+		if (!this.disableOnCommitted) {
+			checkContentLength(1);
+		}
 	}
 
 	private void trackContentLength(Object content) {
-		trackContentLength(String.valueOf(content));
+		if (!this.disableOnCommitted) {
+			trackContentLength(String.valueOf(content));
+		}
 	}
 
 	private void trackContentLength(byte[] content) {
-		checkContentLength((content != null) ? content.length : 0);
+		if (!this.disableOnCommitted) {
+			checkContentLength((content != null) ? content.length : 0);
+		}
 	}
 
 	private void trackContentLength(char[] content) {
-		checkContentLength((content != null) ? content.length : 0);
+		if (!this.disableOnCommitted) {
+			checkContentLength((content != null) ? content.length : 0);
+		}
 	}
 
 	private void trackContentLength(int content) {
-		trackContentLength(String.valueOf(content));
+		if (!this.disableOnCommitted) {
+			trackContentLength(String.valueOf(content));
+		}
 	}
 
 	private void trackContentLength(float content) {
-		trackContentLength(String.valueOf(content));
+		if (!this.disableOnCommitted) {
+			trackContentLength(String.valueOf(content));
+		}
 	}
 
 	private void trackContentLength(double content) {
-		trackContentLength(String.valueOf(content));
+		if (!this.disableOnCommitted) {
+			trackContentLength(String.valueOf(content));
+		}
 	}
 
 	private void trackContentLengthLn() {
-		trackContentLength("\r\n");
+		if (!this.disableOnCommitted) {
+			trackContentLength("\r\n");
+		}
 	}
 
 	private void trackContentLength(String content) {
-		checkContentLength(content.length());
+		if (!this.disableOnCommitted) {
+			int contentLength = (content != null) ? content.length() : 4;
+			checkContentLength(contentLength);
+		}
 	}
 
 	/**
@@ -453,7 +503,7 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 		@Override
 		public PrintWriter append(CharSequence csq) {
-			checkContentLength(csq.length());
+			checkContentLength((csq != null) ? csq.length() : 4);
 			return this.delegate.append(csq);
 		}
 
